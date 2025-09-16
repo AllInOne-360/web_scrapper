@@ -448,7 +448,7 @@ class VulnerabilityScanner:
             headers['User-Agent'] = self.config.get('user_agent', 'VulnScanner/1.0')
 
             async with session.get(url, headers=headers, timeout=10) as response:
-                headers = dict(response.headers)
+                headers = {str(k): str(v) for k, v in response.headers.items()}
                 missing_headers = self._check_missing_security_headers(headers)
 
                 for header_issue in missing_headers:
