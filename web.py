@@ -173,7 +173,7 @@ class WebCrawler:
                 url,
                 headers=headers,
                 timeout=timeout,
-                ssl=self.ssl_context,
+                ssl=False,  # Disable SSL verification temporarily
                 allow_redirects=self.config.get('follow_redirects', True),
                 max_redirects=self.config.get('max_redirects', 10)
             ) as response:
