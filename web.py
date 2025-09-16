@@ -161,50 +161,32 @@ class WebCrawler:
         return list(set(links))  # Remove duplicates
 
     async def fetch_url(self, url: str, session: aiohttp.ClientSession) -> Tuple[Optional[str], Optional[Dict]]:
-        """Fetch URL content asynchronously."""
-        headers = self.config.get('headers', {}).copy()
-        headers['User-Agent'] = self.config.get('user_agent',
-            self.user_agents[hash(url) % len(self.user_agents)])
-
+        """Fetch URL content asynchronously - simplified version."""
         try:
-            timeout = aiohttp.ClientTimeout(total=self.config.get('timeout', 30))
-
-            async with session.get(
-                url,
-                headers=headers,
-                timeout=timeout,
-                ssl=False,  # Disable SSL verification temporarily
-                allow_redirects=self.config.get('follow_redirects', True),
-                max_redirects=self.config.get('max_redirects', 10)
-            ) as response:
-
-                content_type = response.headers.get('Content-Type', '').lower()
-                if 'text/html' not in content_type and 'application/xhtml' not in content_type:
-                    return None, {
-                        'status_code': response.status,
-                        'content_type': content_type,
-                        'url': str(response.url),
-                        'headers': {str(k): str(v) for k, v in response.headers.items()}
-                    }
+            # Simple request without complex headers or SSL handling
+            async with session.get(url, timeout=10) as response:
+                # Only process HTML content
+                content_type = response.headers.get('Content-Type', '')
+                if 'text/html' not in content_type.lower() and 'application/xhtml' not in content_type.lower():
+                    return None, None
 
                 html = await response.text()
-                return html, {
+
+                # Return minimal metadata
+                metadata = {
                     'status_code': response.status,
-                    'content_type': content_type,
-                    'url': str(response.url),
-                    'headers': {str(k): str(v) for k, v in response.headers.items()},
-                    'response_time': response.elapsed.total_seconds() if hasattr(response, 'elapsed') else 0
+                    'url': str(response.url)
                 }
+
+                return html, metadata
 
         except Exception as e:
             error_msg = str(e)
             self.errors.append({
                 'url': url,
                 'error': error_msg,
-                'error_type': type(e).__name__,
                 'timestamp': datetime.now().isoformat()
             })
-            # Use print instead of logger to avoid potential serialization issues
             print(f"Error fetching {url}: {error_msg}")
             return None, None
 
