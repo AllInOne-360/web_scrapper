@@ -145,7 +145,7 @@ class VulnerabilityScanner:
                 return await self._analyze_response(vuln_type, test_url, payload, response, content)
 
         except Exception as e:
-            self.logger.debug(f"Error testing parameter {param}: {e}")
+            self.logger.debug(f"Error testing parameter {param}: {str(e)}")
             return None
 
     async def _test_post_parameter(self, session: aiohttp.ClientSession, base_url: str,
@@ -163,7 +163,7 @@ class VulnerabilityScanner:
                 return await self._analyze_response(vuln_type, base_url, payload, response, content)
 
         except Exception as e:
-            self.logger.debug(f"Error testing POST parameter {param}: {e}")
+            self.logger.debug(f"Error testing POST parameter {param}: {str(e)}")
             return None
 
     async def _analyze_response(self, vuln_type: str, url: str, payload: str,
@@ -469,7 +469,7 @@ class VulnerabilityScanner:
                     vulnerabilities.append(vulnerability)
 
         except Exception as e:
-            self.logger.debug(f"Error checking security headers for {url}: {e}")
+            self.logger.debug(f"Error checking security headers for {url}: {str(e)}")
 
         return vulnerabilities
 
@@ -530,7 +530,7 @@ class VulnerabilityScanner:
                         self.logger.info(f"Dangerous HTTP method allowed: {method} on {url}")
 
             except Exception as e:
-                self.logger.debug(f"Error testing method {method} on {url}: {e}")
+                self.logger.debug(f"Error testing method {method} on {url}: {str(e)}")
 
         return vulnerabilities
 

@@ -197,13 +197,26 @@ class WebCrawler:
                 }
 
         except Exception as e:
-            self.errors.append({
+            # Debug the exception
+            print(f"Exception type: {type(e)}")
+            print(f"Exception args: {e.args}")
+            if hasattr(e, '__dict__'):
+                print(f"Exception dict: {e.__dict__}")
+
+            error_msg = str(e)
+            error_dict = {
                 'url': url,
-                'error': str(e),
+                'error': error_msg,
                 'error_type': type(e).__name__,
                 'timestamp': datetime.now().isoformat()
-            })
-            self.logger.error(f"Error fetching {url}: {e}")
+            }
+            self.errors.append(error_dict)
+            # Try to log safely
+            try:
+                self.logger.error(f"Error fetching {url}: {error_msg}")
+            except Exception as log_e:
+                print(f"Logging error: {log_e}")
+                print(f"Original error: {error_msg}")
             return None, None
 
     def check_robots_txt(self, base_url: str) -> bool:
@@ -223,7 +236,7 @@ class WebCrawler:
             return rp.can_fetch(user_agent, base_url)
 
         except Exception as e:
-            self.logger.warning(f"Could not read robots.txt for {base_url}: {e}")
+            self.logger.warning(f"Could not read robots.txt for {base_url}: {str(e)}")
             return True  # Allow crawling if robots.txt can't be read
 
     async def crawl_worker(self, session: aiohttp.ClientSession):
