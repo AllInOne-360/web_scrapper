@@ -204,8 +204,8 @@ class VulnerabilityScanner:
         parsed = urlparse(url)
         if parsed.query:
             params = parse_qs(parsed.query)
-            return list(params.keys())[0] if params else None
-        return None
+            return list(params.keys())[0] if params else ""
+        return ""
 
     def _check_sqli_indicators(self, response: aiohttp.ClientResponse, content: str, payload: str) -> Tuple[bool, float, Dict]:
         """Check for SQL injection indicators."""

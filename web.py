@@ -184,7 +184,7 @@ class WebCrawler:
                         'status_code': response.status,
                         'content_type': content_type,
                         'url': str(response.url),
-                        'headers': dict(response.headers)
+                        'headers': {str(k): str(v) for k, v in response.headers.items()}
                     }
 
                 html = await response.text()
@@ -192,7 +192,7 @@ class WebCrawler:
                     'status_code': response.status,
                     'content_type': content_type,
                     'url': str(response.url),
-                    'headers': dict(response.headers),
+                    'headers': {str(k): str(v) for k, v in response.headers.items()},
                     'response_time': response.elapsed.total_seconds() if hasattr(response, 'elapsed') else 0
                 }
 
@@ -377,7 +377,7 @@ class WebCrawler:
         if output_format == 'xml':
             content = self.generate_xml_sitemap()
         elif output_format == 'json':
-            content = json.dumps(self.generate_json_output(), indent=2, ensure_ascii=False)
+            content = json.dumps(self.generate_json_output(), indent=2, ensure_ascii=False, default=str)
         else:
             raise ValueError(f"Unsupported output format: {output_format}")
 
