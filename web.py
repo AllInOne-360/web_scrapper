@@ -197,26 +197,15 @@ class WebCrawler:
                 }
 
         except Exception as e:
-            # Debug the exception
-            print(f"Exception type: {type(e)}")
-            print(f"Exception args: {e.args}")
-            if hasattr(e, '__dict__'):
-                print(f"Exception dict: {e.__dict__}")
-
             error_msg = str(e)
-            error_dict = {
+            self.errors.append({
                 'url': url,
                 'error': error_msg,
                 'error_type': type(e).__name__,
                 'timestamp': datetime.now().isoformat()
-            }
-            self.errors.append(error_dict)
-            # Try to log safely
-            try:
-                self.logger.error(f"Error fetching {url}: {error_msg}")
-            except Exception as log_e:
-                print(f"Logging error: {log_e}")
-                print(f"Original error: {error_msg}")
+            })
+            # Use print instead of logger to avoid potential serialization issues
+            print(f"Error fetching {url}: {error_msg}")
             return None, None
 
     def check_robots_txt(self, base_url: str) -> bool:
@@ -291,13 +280,8 @@ class WebCrawler:
 
         self.url_queue.append((start_url, 0))
 
-        # Setup aiohttp session
-        connector = aiohttp.TCPConnector(
-            limit=self.config.get('max_concurrent_requests', 10),
-            ssl=self.ssl_context
-        )
-
-        async with aiohttp.ClientSession(connector=connector) as session:
+        # Setup aiohttp session (simplified to avoid potential issues)
+        async with aiohttp.ClientSession() as session:
             # Create worker tasks
             workers = []
             for _ in range(self.config.get('num_workers', 5)):
