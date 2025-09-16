@@ -1,0 +1,31 @@
+# Log files
+*.log
+crawler.log
+web_scrapper.log
+
+# Results and output files
+crawler_results_*.json
+crawler_results_*.xml
+vulnerabilities_*.json
+vulnerabilities_*.html
+vulnerabilities_*.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
