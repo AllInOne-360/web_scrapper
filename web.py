@@ -161,10 +161,25 @@ class WebCrawler:
         return list(set(links))  # Remove duplicates
 
     async def fetch_url(self, url: str, session: aiohttp.ClientSession) -> Tuple[Optional[str], Optional[Dict]]:
-        """Fetch URL content asynchronously - simplified version."""
+        """Fetch URL content asynchronously."""
         try:
-            # Simple request without complex headers or SSL handling
-            async with session.get(url, timeout=10) as response:
+            # Set up headers safely
+            headers = {}
+            user_agent = self.config.get('user_agent')
+            if user_agent:
+                headers['User-Agent'] = user_agent
+            else:
+                headers['User-Agent'] = 'WebCrawler/1.0'
+
+            # Make the request
+            timeout = aiohttp.ClientTimeout(total=self.config.get('timeout', 30))
+            async with session.get(
+                url,
+                headers=headers,
+                timeout=timeout,
+                allow_redirects=True
+            ) as response:
+
                 # Only process HTML content
                 content_type = response.headers.get('Content-Type', '')
                 if 'text/html' not in content_type.lower() and 'application/xhtml' not in content_type.lower():
@@ -172,10 +187,11 @@ class WebCrawler:
 
                 html = await response.text()
 
-                # Return minimal metadata
+                # Create safe metadata
                 metadata = {
                     'status_code': response.status,
-                    'url': str(response.url)
+                    'url': str(response.url),
+                    'content_type': content_type
                 }
 
                 return html, metadata
